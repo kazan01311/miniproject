@@ -3,6 +3,10 @@ from ultralytics import YOLO
 import torch
 import cv2
 import math
+import random
+
+
+speed = 0
 
 print(torch.__version__)
 
