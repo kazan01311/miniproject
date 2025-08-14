@@ -4,9 +4,10 @@ import torch
 import cv2
 import math
 import random
-
+import time
 
 speed = 0
+last_update = time.time()
 
 print(torch.__version__)
 
@@ -83,6 +84,19 @@ while cap.isOpened():
         line(frame, m_x, m_y, t_x, t_y)
 
         cv2.imshow('detect_frame', detect_frame)
+
+    now = time.time()
+    if now - last_update >= 0.5:
+        if speed < 40:  # 40 미만이면 무조건 증가
+            speed += random.uniform(0, 3)
+        elif speed > 70:  # 70 초과면 무조건 감소
+            speed -= random.uniform(0, 3)
+        else:  # 40~70 구간이면 랜덤 증가/감소
+            speed += random.uniform(-3, 3)
+
+        print(f'speed : {speed:.2f}')
+        last_update = now
+
     cv2.imshow('frame', frame)
     cv2.imshow('detect_frame', detect_frame)
 
