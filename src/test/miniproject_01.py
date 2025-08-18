@@ -45,6 +45,7 @@ def front_bumper(frame):
 
 def euclidean_distance(x1, y1, x2, y2):
     distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+    target_list.append(distance)
     return distance
 
 
@@ -53,11 +54,12 @@ def line(frame, x1, y1, x2, y2):
 
 
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = YOLO('yolov8n.pt')
+model = YOLO('yolov8l.pt')
 print(model.names)
 
 cap = cv2.VideoCapture(0)
 
+target_list = []
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -73,29 +75,64 @@ while cap.isOpened():
     boxes = results[0].boxes.xyxy.cpu().numpy()
 
     confidences = results[0].boxes.conf.cpu().numpy()
-
+    limit = 30
+    min_speed = 15
     for box, conf in zip(boxes, confidences):
         x1, y1, x2, y2 = box
         # print('conficences : %f' % (conf))
         # print('confidences : %f | box : (x1 : %f, y1 : %f, x2 : %f, y2 : %f)' % (conf, x1, y1, x2, y2))
         t_x, t_y = target_pointer(frame, x1, y1, x2, y2)
-
         distance = euclidean_distance(m_x, m_y, t_x, t_y)
         line(frame, m_x, m_y, t_x, t_y)
 
-        cv2.imshow('detect_frame', detect_frame)
+        if distance < limit:
+            print('distance : %f' % (distance))
+            reduction = (limit - distance) * 2
+            if speed - reduction >= min_speed:
+                speed -= reduction
+                cv2.putText(
+                    frame,  # 출력할 이미지
+                    'Slow',  # 표시할 텍스트
+                    (100, 200),  # 텍스트 위치 (x, y)
+                    cv2.FONT_HERSHEY_SIMPLEX,  # 글꼴
+                    1,  # 글자 크기
+                    (0, 0, 255),  # 색상 (B, G, R) → 빨간색
+                    2  # 두께
+                )
+            else:
+                speed = speed
+
+        cv2.putText(
+            frame,  # 출력할 이미지
+            f'Distance: {distance}',  # 표시할 텍스트
+            (10, 60),  # 텍스트 위치 (x, y)
+            cv2.FONT_HERSHEY_SIMPLEX,  # 글꼴
+            1,  # 글자 크기
+            (255, 0, 0),  # 색상 (B, G, R) → 빨간색
+            2  # 두께
+        )
 
     now = time.time()
     if now - last_update >= 0.5:
         if speed < 40:  # 40 미만이면 무조건 증가
-            speed += random.uniform(0, 3)
+            speed += random.uniform(0, 5)
         elif speed > 70:  # 70 초과면 무조건 감소
             speed -= random.uniform(0, 3)
         else:  # 40~70 구간이면 랜덤 증가/감소
-            speed += random.uniform(-3, 3)
+            speed += random.uniform(-1, 3)
 
-        print(f'speed : {speed:.2f}')
+        print('spped %f' % (speed))
         last_update = now
+
+    cv2.putText(
+        frame,  # 출력할 이미지
+        f'Speed: {speed}',  # 표시할 텍스트
+        (10, 30),  # 텍스트 위치 (x, y)
+        cv2.FONT_HERSHEY_SIMPLEX,  # 글꼴
+        1,  # 글자 크기
+        (0, 255, 0),  # 색상 (B, G, R) → 빨간색
+        2  # 두께
+    )
 
     cv2.imshow('frame', frame)
     cv2.imshow('detect_frame', detect_frame)
