@@ -6,6 +6,9 @@ import math
 import random
 import time
 
+
+# -------------------------------------------...베포 중단...-------------------------------------------
+
 speed = 0
 last_update = time.time()
 
@@ -42,7 +45,7 @@ def front_bumper(frame):
     y_offset = height - bumper_h
     frame[y_offset: y_offset + bumper_h, x_offset: x_offset + bumper_w] = bumper_img[:, :, :3]
 
-
+# 타겟과 거리계산
 def euclidean_distance(x1, y1, x2, y2):
     distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
     target_list.append(distance)
