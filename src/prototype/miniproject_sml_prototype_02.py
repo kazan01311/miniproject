@@ -171,7 +171,6 @@ def main():
 
 
 if __name__ == "__main__":
-
     model = YOLO('yolov8m.pt')
     client = airsim.CarClient()
     client.confirmConnection()
