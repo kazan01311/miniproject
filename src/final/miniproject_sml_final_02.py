@@ -18,7 +18,6 @@ def init_airsim_client():
     client.setCarControls(car_controls)
     print("AirSim 클라이언트 연결완료.")
 
-
 # 방향키 조작 앞, 뒤, 좌, 우
 def process_keyboard_input():
     # Max 1.0 Min -1.0
@@ -106,7 +105,7 @@ def main_loop():
             # 자동 제어 (속도조절)
             if is_slow:
                 car_controls.throttle = 0.3
-                cv2.putText(img_bgr, 'Slow', (116, 72), 0, 0.5,
+                cv2.putText(img_bgr, 'Slow', (116, 20), 0, 0.5,
                             (0, 0, 255), 2)
 
             # 차량 제어 적용 및 화면 표시
